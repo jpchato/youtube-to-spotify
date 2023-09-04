@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-def retrieve_youtube_videos(api_key, playlist_id):
-    max_results = 50
+def retrieve_youtube_videos(api_key, playlist_id, max_results=10):
+    max_results = min(max_results, 50)  # Limit max_results to 50
     youtube_url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId={playlist_id}&key={api_key}&maxResults={max_results}"
 
     response = requests.get(youtube_url)
@@ -47,8 +47,26 @@ def main():
         raise ValueError("YouTube API key not found in environment variables.")
 
     # Continue with the rest of the script
-    playlist_id = "RDn1h1AOeVQ38"
-    videos = retrieve_youtube_videos(youtube_api_key, playlist_id)
+    # joji mix
+    # playlist_id = "RDn1h1AOeVQ38"
+    # frank ocean mix
+    playlist_id = "RDG7wcRZWRDdw"
+
+    # Prompt for max_result with default value
+    max_result = input("Enter the number of videos to retrieve (default is 10, max is 50): ")
+    try:
+        max_result = int(max_result)
+    except ValueError:
+        max_result = 10  # Use default if input is not a valid number
+    max_result = min(max_result, 50)  # Limit max_result to 50
+
+    # Prompt for playlist_name with default value
+    playlist_name = input("Enter playlist name (default is 'Converted YoutubeMix'): ")
+    if not playlist_name:
+        playlist_name = "Converted YoutubeMix"
+    playlist_name = playlist_name[:100]  # Limit playlist name to 100 characters
+
+    videos = retrieve_youtube_videos(youtube_api_key, playlist_id, max_result)
 
     # Retrieve Spotify client ID and client secret from environment variables
     spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
@@ -57,11 +75,9 @@ def main():
     # Authenticate with the Spotify Web API
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotify_client_id, client_secret=spotify_client_secret, redirect_uri="YOUR_REDIRECT_URI", scope="playlist-modify-private"))
 
-    # Continue with the rest of the script
     spotify_tracks = search_spotify_tracks(videos, sp)
 
     # Continue with the rest of the script
-    playlist_name = "Converted YouTube Mix"
     playlist_description = "This playlist contains tracks from a converted YouTube mix."
     user_id = sp.me()["id"]
     create_spotify_playlist(playlist_name, playlist_description, user_id, spotify_tracks, sp)
