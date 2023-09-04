@@ -47,10 +47,7 @@ def main():
         raise ValueError("YouTube API key not found in environment variables.")
 
     # Continue with the rest of the script
-    # joji mix
-    # playlist_id = "RDn1h1AOeVQ38"
-    # frank ocean mix
-    playlist_id = "RDG7wcRZWRDdw"
+    playlist_id = input("Enter YouTube playlist ID: ")  # Prompt for YouTube playlist ID
 
     # Prompt for max_result with default value
     max_result = input("Enter the number of videos to retrieve (default is 10, max is 50): ")
